@@ -167,7 +167,7 @@
                 // const textArea2 = document.getElementById("textarea2")
 
 
-                axios.get(`/ru/gpt-service/get-log?news_id=${document.getElementById('item_id')?.value}&news_type=${document.getElementById('r_type')?.value}&promt=${this.condition}`)
+                axios.get(`/ru/gpt-service/get-log?news_id=${document.getElementById('item_id')?.value}&news_type=${document.getElementById('r_type')?.value}&promt=${this.condition}&type=${this.condition_type ? 'analyze' : 'reaction'}`)
                     .then(async (response) => {
                         console.log('gpt-service - response = ', response?.data);
                         if (response?.data == false) {
@@ -196,6 +196,7 @@
 
                             formData.append('news_id', document.getElementById('item_id')?.value)
                             formData.append('news_type', document.getElementById('r_type')?.value)
+                            formData.append('type', this.condition_type ? 'analyze' : 'reaction')
                             formData.append('promt', this.condition)
                             formData.append('result', this.output)
 
