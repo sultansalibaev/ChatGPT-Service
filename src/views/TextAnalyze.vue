@@ -1,11 +1,20 @@
 <template>
-    <div class="container main-block" @click.stop="dropdown_menu = false">
+    <div class="container main-block" @click.stop="dropdown_menu = false;type_dropdown_menu = false">
         <div class="row">
             <div class="col-12">
                 <div class="mb-3">
                     <!-- <span class="badge text-bg-success">Анализ новости</span> -->
                     <div class="dropdown dropdown_inline" style="display: flex;">
-                        <button class="f-z-16 btn btn-success dropdown-toggle" type="button" :style="input != '' ? 'background: #ccc;border: 1px solid #ccc;pointer-events: none;' : ''" data-bs-toggle="dropdown" aria-expanded="false" @click.stop="dropdown_menu = !dropdown_menu">
+                        <button class="f-z-16 btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" @click.stop="type_dropdown_menu = !type_dropdown_menu">
+                            Тип
+                        </button>
+                        <ul class="dropdown-menu" :class="{
+                            show: type_dropdown_menu
+                        }">
+                            <li><button class="dropdown-item" @click="type_dropdown_menu=false;condition_type = true;">Анализ</button></li>
+                            <li><button class="dropdown-item" @click="type_dropdown_menu=false;condition_type = false;">Реакция</button></li>
+                        </ul>
+                        <button class="f-z-16 btn btn-success dropdown-toggle" type="button" :style="input != '' || !condition_type ? 'background: #ccc;border: 1px solid #ccc;pointer-events: none;' : ''" data-bs-toggle="dropdown" aria-expanded="false" @click.stop="dropdown_menu = !dropdown_menu" style="margin-left: 10px;">
                             Условие
                         </button>
                         <ul class="dropdown-menu" :class="{
@@ -16,14 +25,15 @@
                             <li><button class="dropdown-item" @click="dropdown_menu=false;change_condition('сил.структуры')">Сил.Структуры</button></li>
                             <li><button class="dropdown-item" @click="dropdown_menu=false;change_condition('разные т.з.')">Разные т.з.</button></li>
                         </ul>
-                        <input class="form-control" type="text" style="width: 350px;margin-left: 10px;font-size: 15px !important;" placeholder="Введите своё условие (...?)" v-model="input"/>
-                        <!-- <span v-show="input != ''" style="
+                        <input class="form-control" type="text" style="width: 350px;margin-left: 10px;font-size: 15px !important;" :placeholder="condition_type? 'Введите своё условие (...?)' : 'Напиши ответ от лица правительства'" :style="!condition_type && input == '' ? 'border-color: red !important;' : ''" v-model="input"/>
+                        <span v-show="!condition_type && input == ''" style="
                             display: flex;
                             align-items: center;
                             margin-left: 5px;
                             color: red;
                             font-size: 15px;
-                        ">Вопросительный знак в конце обязателен!</span> -->
+                        ">От чьего лица вы ожидаете ответ?</span>
+                        <!-- От лица кого вы ожидаете ответ? -->
                     </div>
                     <div class="cond">Что передается в ChatGPT: <i>Предоставь мне подробный анализ данной новости {{ input == '' ? condition : input }}</i></div>
                     <div class="spinner-border text-success" role="status" id="load-circle-analyze">
@@ -48,9 +58,9 @@
                         <button
                             type="button"
                             class="f-z-16 btn btn-success btn-control"
-                            :style="input != '' ? 'background: #ccc;border:1px solid #ccc;pointer-events:none' : ''"
+                            :style="!condition_type && input == '' ? 'background: #ccc;border:1px solid #ccc;pointer-events:none' : ''"
                             @click="push_news"
-                            :disabled="btn_is_disabled || logs[input != '' ? input : condition]?.result">Запуск</button>
+                            :disabled="btn_is_disabled">Запуск</button>
                     </div>
                 </div>
                 <button type="button" class="f-z-16 btn btn-info btn-help" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="text_analyze_modal = true">
@@ -94,7 +104,7 @@
     import { post_text, logs } from '../use/index'
     import axios from 'axios'
     const configuration = new Configuration({
-        apiKey: "KEY",
+        apiKey: "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",
     });
     let prepared_data = ""
     const openai = new OpenAIApi(configuration);
@@ -102,10 +112,12 @@
         data() {
             return {
                 condition: "",
+                condition_type: true,
                 input: "",
                 output: "",
                 text_analyze_modal: false,
                 dropdown_menu: false,
+                type_dropdown_menu: false,
                 btn_is_disabled: false,
             }
         },
@@ -159,13 +171,20 @@
                     .then(async (response) => {
                         console.log('gpt-service - response = ', response?.data);
                         if (response?.data == false) {
+                            console.log('condition_type', this.condition_type);
                             const completion = await openai.createChatCompletion({
                                 model: "gpt-3.5-turbo",
-                                messages: [
-                                    {'role': 'system', 'content': 'You are an assistant for the monitoring system. You must give your own analysis of the presented news.'},
-                                    {'role': 'user', 'content': 'Предоставь мне подробный анализ данной новости. ' + this.condition},
-                                    {'role': 'user', 'content': 'Представленная новость: ' + temp}
-                                ],
+                                messages: this.condition_type
+                                    ? [
+                                        {'role': 'system', 'content': 'You are an assistant for the monitoring system. You must give your own analysis of the presented news.'},
+                                        {'role': 'user', 'content': 'Предоставь мне подробный анализ данной новости. ' + this.condition},
+                                        {'role': 'user', 'content': 'Представленная новость: ' + temp}
+                                    ]
+                                    : [
+                                        {'role': 'system', 'content': 'You are an assistant for the monitoring system. You must analyze the given news and issue an answer based on the given news according to the request'},
+                                        {'role': 'user', 'content': 'Проанализируй данную новость и сформируй ответ на ее основе. ' + this.condition},
+                                        {'role': 'user', 'content': 'Представленная новость: ' + temp}
+                                    ]
                             });
                             this.output = completion.data.choices[0].message.content
                             load_elem.style.display = "none"

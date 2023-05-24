@@ -71,7 +71,7 @@
     import { post_text, logs } from '../use/index'
     import axios from 'axios'
     const configuration = new Configuration({
-        apiKey: "KEY",
+        apiKey: "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",
     });
     let prepared_data = ""
     const openai = new OpenAIApi(configuration);
