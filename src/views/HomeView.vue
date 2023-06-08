@@ -159,6 +159,7 @@
 
                             formData.append('news_id', document.getElementById('item_id')?.value)
                             formData.append('news_type', document.getElementById('r_type')?.value)
+                            formData.append('type', 'analyze')
                             formData.append('promt', 'Обобщение')
                             formData.append('result', this.output)
 

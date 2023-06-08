@@ -133,9 +133,9 @@
                 textArea.value = ""
             },
             change_condition(statement) {
-                if (statement == "бизнес") {this.condition = "C точки зрения бизнеса"} 
-                if (statement == "государство") {this.condition = "C точки зрения государства"} 
-                if (statement == "сил.структуры") {this.condition = "C точки зрения силовых структур"} 
+                if (statement == "бизнес") {this.condition = "С точки зрения бизнеса"} 
+                if (statement == "государство") {this.condition = "С точки зрения государства"} 
+                if (statement == "сил.структуры") {this.condition = "С точки зрения силовых структур"} 
                 if (statement == "разные т.з.") {this.condition = "C разных точек зрения"} 
 
             },
@@ -227,9 +227,9 @@
                 // if (log_keys.length == 1 && log_keys[0] == "Обобщение") return;
 
                 const temp_log_key = log_keys.find(prompt => (
-                        prompt == "C точки зрения бизнеса" ||
-                        prompt == "C точки зрения государства" ||
-                        prompt == "C точки зрения силовых структур" ||
+                        prompt == "С точки зрения бизнеса" ||
+                        prompt == "С точки зрения государства" ||
+                        prompt == "С точки зрения силовых структур" ||
                         prompt == "C разных точек зрения"
                     ) && prompt != 'Обобщение')
 
@@ -239,9 +239,9 @@
 
                 if (this.condition == '') {
                     const log_key = log_keys.find(prompt => (
-                        prompt != "C точки зрения бизнеса" &&
-                        prompt != "C точки зрения государства" &&
-                        prompt != "C точки зрения силовых структур" &&
+                        prompt != "С точки зрения бизнеса" &&
+                        prompt != "С точки зрения государства" &&
+                        prompt != "С точки зрения силовых структур" &&
                         prompt != "C разных точек зрения"
                     ) && prompt != 'Обобщение')
                     if (log_key) this.input = log_key
